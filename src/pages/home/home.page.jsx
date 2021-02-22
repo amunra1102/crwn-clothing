@@ -4,7 +4,7 @@ import { DirectoryComponent } from '../../components';
 
 import './home.style.scss';
 
-const HomePage = () => {
+const Home = () => {
   return (
     <div className='homepage'>
       <DirectoryComponent/>
@@ -12,4 +12,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default Home;
