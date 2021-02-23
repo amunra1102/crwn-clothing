@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import { connect } from 'react-redux';
+import React, { useEffect } from 'react';
 import { Switch, Route } from 'react-router-dom';
 
 // firebase
@@ -13,38 +14,53 @@ import {
 import {
   HomePage,
   ShopPage,
+  CheckoutPage,
   SignInAndSignUpPagePage
 } from './pages';
 
+import { setCurrentUser } from './redux/user/user.action';
+
 import './App.css';
 
-function App() {
-  const [currentUser, setCurrentUser] = useState(null);
+function App({fetchSetCurrentUser}) {
+  // const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
     auth.onAuthStateChanged(async userAuth => {
       if (userAuth) {
         const userRef = await createUserProfileDocument(userAuth);
-        userRef.onSnapshot(snapShot => setCurrentUser({
+        userRef.onSnapshot(snapShot => fetchSetCurrentUser({
           id: snapShot.id,
           ...snapShot.data()
         }));
       }
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  console.log(9999, currentUser);
 
   return (
     <div>
-      <HeaderComponent currentUser={currentUser}/>
+      <HeaderComponent/>
       <Switch>
         <Route exact path='/' component={HomePage}/>
         <Route path='/shop' component={ShopPage}/>
         <Route path='/sign-in' component={SignInAndSignUpPagePage}/>
+        <Route exact path='/checkout' component={CheckoutPage}/>
       </Switch>
     </div>
   );
 }
 
-export default App;
+const mapStateToProps = ({ user }) => ({
+  currentUser: user.currentUser
+});
+
+const mapDispatchToProps = dispatch => ({
+  fetchSetCurrentUser: user => dispatch(setCurrentUser(user))
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(App);
