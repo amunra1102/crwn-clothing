@@ -1,9 +1,13 @@
 import { connect } from 'react-redux';
 import React, { useEffect } from 'react';
 import { Switch, Route } from 'react-router-dom';
+import { createStructuredSelector } from 'reselect';
 
 // firebase
-import { auth, createUserProfileDocument } from './firebase/firebase.util';
+import {
+  auth,
+  createUserProfileDocument,
+} from './firebase/firebase.util';
 
 // import components
 import {
@@ -18,26 +22,16 @@ import {
   SignInAndSignUpPagePage
 } from './pages';
 
-import { setCurrentUser } from './redux/user/user.action';
+import { selectCurrentUser } from './redux/user/user.selector';
+import { checkUserSession } from './redux/user/user.action';
 
 import './App.css';
 
-function App({fetchSetCurrentUser}) {
-  // const [currentUser, setCurrentUser] = useState(null);
+function App({checkUserSession, currentUser}) {
 
   useEffect(() => {
-    auth.onAuthStateChanged(async userAuth => {
-      if (userAuth) {
-        const userRef = await createUserProfileDocument(userAuth);
-        userRef.onSnapshot(snapShot => fetchSetCurrentUser({
-          id: snapShot.id,
-          ...snapShot.data()
-        }));
-      }
-    });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
+    checkUserSession();
+  }, [checkUserSession]);
 
   return (
     <div>
@@ -52,12 +46,12 @@ function App({fetchSetCurrentUser}) {
   );
 }
 
-const mapStateToProps = ({ user }) => ({
-  currentUser: user.currentUser
+const mapStateToProps = createStructuredSelector({
+  currentUser: selectCurrentUser
 });
 
 const mapDispatchToProps = dispatch => ({
-  fetchSetCurrentUser: user => dispatch(setCurrentUser(user))
+  checkUserSession: () => dispatch(checkUserSession())
 });
 
 export default connect(
